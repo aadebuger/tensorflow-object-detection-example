@@ -21,7 +21,7 @@ import cStringIO
 import sys
 import tempfile
 
-MODEL_BASE = '/opt/models/research'
+MODEL_BASE = '/Users/aadebuger/GEXT/github2019/models'
 sys.path.append(MODEL_BASE)
 sys.path.append(MODEL_BASE + '/object_detection')
 sys.path.append(MODEL_BASE + '/slim')
@@ -167,30 +167,8 @@ def detect_objects(image_path):
   return result
 
 
-@app.route('/')
-def upload():
-  photo_form = PhotoForm(request.form)
-  return render_template('upload.html', photo_form=photo_form, result={})
 
-
-@app.route('/post', methods=['GET', 'POST'])
-def post():
-  form = PhotoForm(CombinedMultiDict((request.files, request.form)))
-  if request.method == 'POST' and form.validate():
-    with tempfile.NamedTemporaryFile() as temp:
-      form.input_photo.data.save(temp)
-      temp.flush()
-      result = detect_objects(temp.name)
-
-    photo_form = PhotoForm(request.form)
-    return render_template('upload.html',
-                           photo_form=photo_form, result=result)
-  else:
-    return redirect(url_for('upload'))
 
 
 client = ObjectDetector()
 
-
-if __name__ == '__main__':
-  app.run(host='0.0.0.0', port=80, debug=False)
